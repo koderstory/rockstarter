@@ -6,3 +6,5 @@ __pycache__/
 *.pot
 *.pyc
 __pycache__/
+
+.env
