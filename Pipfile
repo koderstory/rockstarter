@@ -9,6 +9,10 @@ django-storages = {extras = ["boto3"], version = "*"}
 django-admin-interface = "*"
 whitenoise = "*"
 django-environ = "*"
+gunicorn = "*"
+psycopg2 = "*"
+pillow = "*"
+djlint = "*"
 
 [dev-packages]
 
