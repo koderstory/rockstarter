@@ -27,7 +27,7 @@ What are the features included in the project template?
 1. Download template
 
 ```
- wget https://bit.ly/djangotemplate -O django-template.zip
+ wget https://github.com/aldyahsn/django-template/blob/master/template.zip
 ```
 
 2. Unzip the downloaded file into a directory named project_name
