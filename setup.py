@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='django-rocket-starter',
-    version='0.1.2',
+    version='0.1.3',
     packages=find_packages(),
     install_requires=[
         'django>=3.0',
