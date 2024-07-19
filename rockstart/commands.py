@@ -19,16 +19,16 @@ def deploy(domain_name):
     current_dir = os.getcwd()
 
     # Create the socket file
-    socket_content = f"""
-        [Unit]
-        Description=Socket for {domain_name}
-
-        [Socket]
-        ListenStream=/run/{domain_name}.sock
-
-        [Install]
-        WantedBy=sockets.target
-        """
+    socket_content = f"""[Unit]
+    Description=Socket for {domain_name}
+    
+    [Socket]
+    ListenStream=/run/{domain_name}.sock
+    
+    [Install]
+    WantedBy=sockets.target
+    """
+    
     socket_path = f"/home/dev/{domain_name}.socket"
     # socket_path = f"/etc/systemd/system/{domain_name}.socket"
     with open(socket_path, 'w') as socket_file:
@@ -36,24 +36,22 @@ def deploy(domain_name):
     print(f"Created socket file at {socket_path}")
 
     # Create the service file
-    service_content = f"""
+    service_content = f"""[Unit]
+    Description=gunicorn daemon
+    Requires={domain_name}.socket
+    After=network.target
     
-        [Unit]
-        Description=gunicorn daemon
-        Requires={domain_name}.socket
-        After=network.target
-
-        [Service]
-        User=dev
-        Group=www-data
-        WorkingDirectory=/srv/{domain_name}
-        ExecStart=/srv/{current_dir}/.venv/bin/gunicorn \
+    [Service]
+    User=dev
+    Group=www-data
+    WorkingDirectory=/srv/{domain_name}
+    ExecStart=/srv/{current_dir}/.venv/bin/gunicorn \
         --access-logfile - \
-        --workers 3 \
-        --bind unix:/run/{domain_name}.sock \
-        --chdir /srv/{domain_name} \
-        config.wsgi:application
-        """
+            --workers 3 \
+                --bind unix:/run/{domain_name}.sock \
+                    --chdir /srv/{domain_name} \
+                        config.wsgi:application
+    """
         
     service_path = f"/home/dev/{domain_name}.service"
     # service_path = f"/etc/systemd/system/{domain_name}.service"
