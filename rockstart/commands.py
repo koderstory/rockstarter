@@ -44,14 +44,17 @@ After=network.target
 [Service]
 User=dev
 Group=www-data
-WorkingDirectory=/srv/{domain_name}
-ExecStart=/srv/{current_dir}/.venv/bin/gunicorn \
-    --access-logfile - \
-    --workers 3 \
-    --bind unix:/run/{domain_name}.sock \
-    --chdir /srv/{domain_name} \
-    config.wsgi:application
+WorkingDirectory={current_dir}
+ExecStart={current_dir}/.venv/bin/gunicorn \
+--access-logfile - \
+--workers 3 \
+--bind unix:/run/{domain_name}.sock \
+--chdir /srv/{domain_name} \
+config.wsgi:application
     
+[Install]
+WantedBy=multi-user.target
+
     """
         
     service_path = f"/home/dev/{domain_name}.service"
