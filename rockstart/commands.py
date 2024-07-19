@@ -2,6 +2,7 @@
 import shutil
 import os
 import subprocess
+import getpass
 
 
 def copy_project_files():
@@ -14,8 +15,10 @@ def copy_project_files():
         print('Project files copied successfully.')
     except Exception as e:
         print(f'Error: {e}')
-        
+
+
 def deploy(domain_name):
+    current_user = getpass.getuser()
     current_dir = os.getcwd()
 
     # Create the socket file
@@ -42,11 +45,12 @@ Requires={domain_name}.socket
 After=network.target
     
 [Service]
-User=dev
+User={current_user}
 Group=www-data
 WorkingDirectory={current_dir}
 ExecStart={current_dir}/.venv/bin/gunicorn \
---access-logfile - \
+--access-logfile /var/log/{domain_name}-access.log \
+--error-logfile /var/log/{domain_name}-error.log \
 --workers 3 \
 --bind unix:/run/{domain_name}.sock \
 --chdir /srv/{domain_name} \
@@ -54,7 +58,6 @@ config.wsgi:application
     
 [Install]
 WantedBy=multi-user.target
-
     """
         
     service_path = f"/home/dev/{domain_name}.service"
@@ -68,26 +71,35 @@ WantedBy=multi-user.target
     # subprocess.run(['sudo', 'systemctl', 'enable', domain_name])
     print(f"Started and enabled service for {domain_name}")
 
-    # # Create the nginx config file
-    # nginx_content = f"""server {{
-    #     listen 80;
-    #     server_name {domain_name};
+    # Create the nginx config file
+    nginx_content = f"""server {{
+        listen 80;
+        server_name {domain_name};
+        
+        location = /favicon.ico {{ access_log off; log_not_found off; }}
 
-    #     location / {{
-    #         proxy_pass http://unix:/run/{domain_name}.sock;
-    #         proxy_set_header Host $host;
-    #         proxy_set_header X-Real-IP $remote_addr;
-    #         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    #         proxy_set_header X-Forwarded-Proto $scheme;
-    #     }}
-    # }}
-    # """
+        location /static {{
+            alias /srv/{domain_name}/public/static;
+        }}
+
+        location /media {{
+            alias /srv/{domain_name}/public/media;
+        }}
+
+        location / {{
+            include proxy_params;
+            proxy_pass http://unix:/run/{domain_name}.sock;
+        }}
+    }}
+    """
+    nginx_path = f"/home/dev/{domain_name}"
     # nginx_path = f"/etc/nginx/sites-available/{domain_name}"
-    # with open(nginx_path, 'w') as nginx_file:
-    #     nginx_file.write(nginx_content)
-    # os.symlink(nginx_path, f"/etc/nginx/sites-enabled/{domain_name}")
-    # print(f"Created nginx config file at {nginx_path}")
+    with open(nginx_path, 'w') as nginx_file:
+        nginx_file.write(nginx_content)
+    # if not os.path.exists(f"/etc/nginx/sites-enabled/{domain_name}"):
+    #     os.symlink(nginx_path, f"/etc/nginx/sites-enabled/{domain_name}")
+    print(f"Created nginx config file at {nginx_path}")
 
-    # # Restart nginx to apply the changes
+    # Restart nginx to apply the changes
     # subprocess.run(['sudo', 'systemctl', 'restart', 'nginx'])
-    # print("Restarted nginx")
+    print("Restarted nginx")
