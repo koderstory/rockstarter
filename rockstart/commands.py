@@ -20,13 +20,13 @@ def deploy(domain_name):
 
     # Create the socket file
     socket_content = f"""[Unit]
-    Description=Socket for {domain_name}
+Description=Socket for {domain_name}
     
-    [Socket]
-    ListenStream=/run/{domain_name}.sock
+[Socket]
+ListenStream=/run/{domain_name}.sock
     
-    [Install]
-    WantedBy=sockets.target
+[Install]
+WantedBy=sockets.target
     """
     
     socket_path = f"/home/dev/{domain_name}.socket"
@@ -37,20 +37,21 @@ def deploy(domain_name):
 
     # Create the service file
     service_content = f"""[Unit]
-    Description=gunicorn daemon
-    Requires={domain_name}.socket
-    After=network.target
+Description=gunicorn daemon
+Requires={domain_name}.socket
+After=network.target
     
-    [Service]
-    User=dev
-    Group=www-data
-    WorkingDirectory=/srv/{domain_name}
-    ExecStart=/srv/{current_dir}/.venv/bin/gunicorn \
-        --access-logfile - \
-            --workers 3 \
-                --bind unix:/run/{domain_name}.sock \
-                    --chdir /srv/{domain_name} \
-                        config.wsgi:application
+[Service]
+User=dev
+Group=www-data
+WorkingDirectory=/srv/{domain_name}
+ExecStart=/srv/{current_dir}/.venv/bin/gunicorn \
+    --access-logfile - \
+    --workers 3 \
+    --bind unix:/run/{domain_name}.sock \
+    --chdir /srv/{domain_name} \
+    config.wsgi:application
+    
     """
         
     service_path = f"/home/dev/{domain_name}.service"
