@@ -3,7 +3,16 @@ import shutil
 import os
 import subprocess
 import getpass
+import venv
 
+
+def create_virtualenv(directory):
+    venv_dir = os.path.join(directory, '.venv')
+    if not os.path.exists(venv_dir):
+        venv.create(venv_dir, with_pip=True)
+        print(f"Created virtual environment in {venv_dir}")
+    else:
+        print(f"Virtual environment already exists in {venv_dir}")
 
 def copy_project_files():
     current_dir = os.path.dirname(__file__)
@@ -20,6 +29,9 @@ def copy_project_files():
 def deploy(domain_name):
     current_user = getpass.getuser()
     current_dir = os.getcwd()
+
+    # Create the virtual environment if it doesn't exist
+    create_virtualenv(current_dir)
 
     # Create the socket file
     socket_content = f"""[Unit]
@@ -53,7 +65,7 @@ ExecStart={current_dir}/.venv/bin/gunicorn \
 --error-logfile /var/log/{domain_name}-error.log \
 --workers 3 \
 --bind unix:/run/{domain_name}.sock \
---chdir /srv/{domain_name} \
+--chdir {current_dir} \
 config.wsgi:application
     
 [Install]
@@ -79,11 +91,11 @@ WantedBy=multi-user.target
         location = /favicon.ico {{ access_log off; log_not_found off; }}
 
         location /static {{
-            alias /srv/{domain_name}/public/static;
+            alias {current_dir}/public/static;
         }}
 
         location /media {{
-            alias /srv/{domain_name}/public/media;
+            alias {current_dir}/public/media;
         }}
 
         location / {{
