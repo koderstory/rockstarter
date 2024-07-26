@@ -1,2 +1,1 @@
-# MANIFEST.in
-include rockstart/myproject/*
+recursive-include rockstarter/src *
