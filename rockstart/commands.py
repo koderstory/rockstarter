@@ -16,7 +16,8 @@ def create_virtualenv(directory):
 
 def copy_project_files():
     current_dir = os.path.dirname(__file__)
-    template_dir = os.path.join(current_dir, 'myproject')
+    template_dir = os.path.join(current_dir, '..', 'src')
+    template_dir = os.path.normpath(template_dir)
     target_dir = os.getcwd()
 
     try:
