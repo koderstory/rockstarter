@@ -15,10 +15,10 @@ def create_virtualenv(directory):
         print(f"Virtual environment already exists in {venv_dir}")
 
 def copy_project_files():
-    current_dir = os.path.dirname(__file__)
-    template_dir = os.path.join(current_dir, '..', 'src')
-    template_dir = os.path.normpath(template_dir)
-    target_dir = os.getcwd()
+    current_dir = os.getcwd()
+    script_dir = os.path.dirname(__file__)
+    template_dir = os.path.abspath(os.path.join(script_dir, '..', '..', 'src'))
+    target_dir = current_dir
 
     try:
         shutil.copytree(template_dir, target_dir, dirs_exist_ok=True)
