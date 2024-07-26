@@ -24,7 +24,7 @@ def copy_project_files():
         print(f'Error: {e}')
 
 def main():
-    if len(sys.argv) > 1 and sys.argv[1] == "go":
+    if len(sys.argv) > 1 and sys.argv[1] == "run":
         copy_project_files()
     else:
-        print("Usage: rockstart go")
+        print("Usage: rockstarter run")
