@@ -24,7 +24,7 @@ rockstarter run
 
 3. Install dependencies
 ```
-pip install -r requirements
+pip install -r requirements.txt
 ```
 
 3. Move environ sample
