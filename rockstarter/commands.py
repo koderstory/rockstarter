@@ -6,6 +6,7 @@ from string import Template
 
 
 domain_name = ""
+project_path = ""
 nginx_temp_pathfile = os.getcwd() + "/nginx_domain"
 service_temp_pathfile = os.getcwd() + "/gunicorn_domain.service"
 socket_temp_pathfile = os.getcwd() + "/gunicorn_domain.socket"
@@ -64,7 +65,7 @@ After=network.target
 [Service]
 User=dev
 Group=www-data
-WorkingDirectory=/srv/$domain
+WorkingDirectory=$path
 ExecStart=/srv/$domain/.venv/bin/gunicorn \
           --access-logfile - \
           --workers 3 \
@@ -76,7 +77,7 @@ WantedBy=multi-user.target
 """)
 
     # Replace the placeholder with the actual domain
-    config_content = config_template.substitute(domain=domain_name)
+    config_content = config_template.substitute(domain=domain_name,path=project_path)
 
     # # Write the configuration to the specified output path
     with open(service_temp_pathfile, 'w') as config_file:
@@ -84,6 +85,9 @@ WantedBy=multi-user.target
 
     # copy config file to systemd socket config
     os.system(f'sudo mv {service_temp_pathfile} /etc/systemd/system/gunicorn_{domain_name}.service')
+    os.system(f'sudo systemctl start gunicorn_{domain_name}')
+    os.system(f'sudo systemctl enable gunicorn_{domain_name}')
+    os.system(f'sudo systemctl enable gunicorn_{domain_name}.socket')
     print('setup service DONE')
 
 
@@ -125,13 +129,14 @@ def main():
         copy_project_files()
     elif len(sys.argv) > 1 and sys.argv[1] == "deploy":
         try:
-            global domain_name
+            global domain_name, project_path
             domain_name = sys.argv[2]
+            project_path = sys.argv[3]
             create_socket_config()
             create_service_config()
             create_nginx_config()
         except IndexError:
-            print("Usage: rockstarter deploy your-domain-name.com")
+            print("Usage: rockstarter deploy your-domain-name.com 'projectpath'")
     else:
         print("Usage: rockstarter run")
-# main()
+main()
