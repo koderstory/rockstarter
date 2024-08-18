@@ -3,10 +3,19 @@ import shutil
 import os
 import sys
 from string import Template
+from django.conf import settings
+
+def get_project_path():
+    return settings.BASE_DIR
+
+
+def get_virtualenv_path():
+    return sys.prefix
 
 
 domain_name = ""
-project_path = ""
+project_path = get_project_path()
+env_path = get_virtualenv_path()
 nginx_temp_pathfile = os.getcwd() + "/nginx_domain"
 service_temp_pathfile = os.getcwd() + "/gunicorn_domain.service"
 socket_temp_pathfile = os.getcwd() + "/gunicorn_domain.socket"
@@ -65,8 +74,8 @@ After=network.target
 [Service]
 User=dev
 Group=www-data
-WorkingDirectory=$path
-ExecStart=/srv/$domain/.venv/bin/gunicorn \
+WorkingDirectory=$project_path
+ExecStart=$env_path/bin/gunicorn \
           --access-logfile - \
           --workers 3 \
           --bind unix:/run/gunicorn_$domain.sock \
@@ -77,7 +86,7 @@ WantedBy=multi-user.target
 """)
 
     # Replace the placeholder with the actual domain
-    config_content = config_template.substitute(domain=domain_name,path=project_path)
+    config_content = config_template.substitute(domain=domain_name,project_path=project_path,env_path=env_path)
 
     # # Write the configuration to the specified output path
     with open(service_temp_pathfile, 'w') as config_file:
@@ -129,14 +138,13 @@ def main():
         copy_project_files()
     elif len(sys.argv) > 1 and sys.argv[1] == "deploy":
         try:
-            global domain_name, project_path
+            global domain_name
             domain_name = sys.argv[2]
-            project_path = sys.argv[3]
             create_socket_config()
             create_service_config()
             create_nginx_config()
         except IndexError:
-            print("Usage: rockstarter deploy your-domain-name.com 'projectpath'")
+            print("Usage: rockstarter deploy your-domain-name.com")
     else:
         print("Usage: rockstarter run")
 main()
