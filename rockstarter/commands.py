@@ -5,8 +5,10 @@ import sys
 from string import Template
 
 
-domain_name = sys.argv[2]
+domain_name = ""
 nginx_temp_pathfile = os.getcwd() + "/nginx_domain"
+service_temp_pathfile = os.getcwd() + "/gunicorn_domain.service"
+socket_temp_pathfile = os.getcwd() + "/gunicorn_domain.socket"
 
 def copy_project_files():
     current_dir = os.path.dirname(__file__)
@@ -28,8 +30,66 @@ def copy_project_files():
     except Exception as e:
         print(f'Error: {e}')
 
+def create_socket_config():
+    # Template for the Nginx configuration
+    config_template = Template("""[Unit]
+Description=gunicorn socket
 
-def create_nginx_config(domain, nginx_fileconfig_path):
+[Socket]
+ListenStream=/run/gunicorn_$domain.sock
+
+[Install]
+WantedBy=sockets.target
+""")
+
+    # Replace the placeholder with the actual domain
+    config_content = config_template.substitute(domain=domain_name)
+
+    # # Write the configuration to the specified output path
+    with open(socket_temp_pathfile, 'w') as config_file:
+        config_file.write(config_content)
+
+    # copy config file to systemd socket config
+    os.system(f'sudo mv {socket_temp_pathfile} /etc/systemd/system/gunicorn_{domain_name}.socket')
+    print('setup socket DONE')
+
+
+def create_service_config():
+    # Template for the Nginx configuration
+    config_template = Template("""[Unit]
+Description=gunicorn daemon
+Requires=gunicorn_$domain.socket
+After=network.target
+
+[Service]
+User=dev
+Group=www-data
+WorkingDirectory=/srv/$domain
+ExecStart=/srv/$domain/.venv/bin/gunicorn \
+          --access-logfile - \
+          --workers 3 \
+          --bind unix:/run/gunicorn_$domain.sock \
+          config.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
+""")
+
+    # Replace the placeholder with the actual domain
+    config_content = config_template.substitute(domain=domain_name)
+
+    # # Write the configuration to the specified output path
+    with open(service_temp_pathfile, 'w') as config_file:
+        config_file.write(config_content)
+
+    # copy config file to systemd socket config
+    os.system(f'sudo mv {service_temp_pathfile} /etc/systemd/system/gunicorn_{domain_name}.service')
+    print('setup service DONE')
+
+
+
+
+def create_nginx_config():
     # Template for the Nginx configuration
     config_template = Template("""
 server {
@@ -46,23 +106,30 @@ server {
 """)
 
     # Replace the placeholder with the actual domain
-    config_content = config_template.substitute(domain=domain)
+    config_content = config_template.substitute(domain=domain_name)
 
     # # Write the configuration to the specified output path
-    with open(nginx_fileconfig_path, 'w') as config_file:
+    with open(nginx_temp_pathfile, 'w') as config_file:
         config_file.write(config_content)
 
     # copy config file to nginx sites config
-    os.system(f'sudo mv {nginx_fileconfig_path} /etc/nginx/sites-available/{domain}')
-
+    os.system(f'sudo mv {nginx_temp_pathfile} /etc/nginx/sites-available/{domain_name}')
+    
+    os.system(f'sudo ln -s /etc/nginx/sites-available/{domain_name} /etc/nginx/sites-enabled')
+    os.system(f'sudo systemctl restart nginx')
     print('setup nginx DONE')
+
 
 def main():
     if len(sys.argv) > 1 and sys.argv[1] == "run":
         copy_project_files()
     elif len(sys.argv) > 1 and sys.argv[1] == "deploy":
         try:
-            create_nginx_config(domain_name, nginx_temp_pathfile)
+            global domain_name
+            domain_name = sys.argv[2]
+            create_socket_config()
+            create_service_config()
+            create_nginx_config()
         except IndexError:
             print("Usage: rockstarter deploy your-domain-name.com")
     else:

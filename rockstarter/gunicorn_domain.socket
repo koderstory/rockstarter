@@ -1,0 +1,8 @@
+[Unit]
+Description=gunicorn socket
+
+[Socket]
+ListenStream=/run/gunicorn_koderstory.com.sock
+
+[Install]
+WantedBy=sockets.target
