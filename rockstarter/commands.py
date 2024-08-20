@@ -3,11 +3,14 @@ import shutil
 import os
 import sys
 from string import Template
-from django.conf import settings
 
 def get_project_path():
-    return settings.BASE_DIR
-
+    # This gets the absolute path of the current file (commands.py)
+    current_file_path = os.path.abspath(__file__)
+    
+    project_path = os.path.dirname(os.path.dirname(current_file_path))
+    
+    return project_path
 
 def get_virtualenv_path():
     return sys.prefix
