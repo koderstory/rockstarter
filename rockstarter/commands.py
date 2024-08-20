@@ -4,21 +4,9 @@ import os
 import sys
 from string import Template
 
-def get_project_path():
-    # This gets the absolute path of the current file (commands.py)
-    current_file_path = os.path.abspath(__file__)
-    
-    project_path = os.path.dirname(os.path.dirname(current_file_path))
-    
-    return project_path
-
-def get_virtualenv_path():
-    return sys.prefix
-
-
 domain_name = ""
-project_path = get_project_path()
-env_path = get_virtualenv_path()
+project_path = os.getcwd()
+env_path = sys.prefix
 nginx_temp_pathfile = os.getcwd() + "/nginx_domain"
 service_temp_pathfile = os.getcwd() + "/gunicorn_domain.service"
 socket_temp_pathfile = os.getcwd() + "/gunicorn_domain.socket"
