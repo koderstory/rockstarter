@@ -123,7 +123,7 @@ server {
     os.system(f'sudo systemctl restart nginx')
     print('setup nginx DONE')
 
-def remove_service_and_nginx(domain_name):
+def remove_service_and_nginx():
     """
     This method removes a systemd service, its socket, and associated NGINX configuration.
     
