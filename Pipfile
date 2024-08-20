@@ -7,6 +7,9 @@ name = "pypi"
 django = "==4.*"
 whitenoise = "*"
 django-environ = "*"
+setuptools = "*"
+wheel = "*"
+twine = "*"
 
 [dev-packages]
 

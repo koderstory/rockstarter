@@ -14,7 +14,7 @@ Django Rockstarter is a Python package designed to accelerate the setup of Djang
 1. **Install django rockstarter package**
 
 ```
-pip install git+https://github.com/koderstory/django-rockstarter.git
+pip install rockstarter
 ```
 
 2. **Init project**
