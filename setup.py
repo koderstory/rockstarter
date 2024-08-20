@@ -3,8 +3,11 @@ from setuptools import setup, find_packages
 
 setup(
     name='rockstarter',
-    version='0.1.0',
+    version='0.1.1',
     packages=find_packages(),
+    install_requires=[
+        'Django>=4.2.15',  # Specify the minimum Django version you want to support
+    ],
     include_package_data=True,
     entry_points={
         'console_scripts': [
