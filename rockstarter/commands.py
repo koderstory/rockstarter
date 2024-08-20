@@ -164,7 +164,7 @@ def main():
     elif len(sys.argv) > 1 and sys.argv[1] == "drop":
         try:
             domain_name = sys.argv[2]
-            remove_service_and_nginx(domain_name)
+            remove_service_and_nginx()
         except IndexError:
             print("Usage: rockstarter drop your-domain-name.com")
     elif len(sys.argv) > 1 and sys.argv[1] == "deploy":
