@@ -34,15 +34,25 @@ if necessary, edit .env and add your domain in **ALLOWED_HOSTS**
 python manage.py migrate
 ```
 
-5. **Run project**
+# Local Running
+
+**Running Server (local)**
 ```
 python manage.py runserver
 ```
 
-# Deploy Website
+# Production
 
+- Live to production
 ```
 rockstarter deploy my.domain.com
 ```
+
+- Drop website
+```
+rockstarter drop my.domain.com
+```
+
+
 
 
