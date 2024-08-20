@@ -138,4 +138,7 @@ def main():
             print("Usage: rockstarter deploy your-domain-name.com")
     else:
         print("Usage: rockstarter run")
-main()
+
+
+# just for testing
+#main()
