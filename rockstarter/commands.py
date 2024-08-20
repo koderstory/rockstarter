@@ -158,18 +158,17 @@ def remove_service_and_nginx():
 
 
 def main():
+    global domain_name
     if len(sys.argv) > 1 and sys.argv[1] == "run":
         copy_project_files()
     elif len(sys.argv) > 1 and sys.argv[1] == "drop":
         try:
-            global domain_name
             domain_name = sys.argv[2]
             remove_service_and_nginx(domain_name)
         except IndexError:
             print("Usage: rockstarter drop your-domain-name.com")
     elif len(sys.argv) > 1 and sys.argv[1] == "deploy":
         try:
-            global domain_name
             domain_name = sys.argv[2]
             create_socket_config()
             create_service_config()
