@@ -123,10 +123,50 @@ server {
     os.system(f'sudo systemctl restart nginx')
     print('setup nginx DONE')
 
+def remove_service_and_nginx(domain_name):
+    """
+    This method removes a systemd service, its socket, and associated NGINX configuration.
+    
+    :param service_name: The name of the systemd service (without .service extension) and associated NGINX site
+    """
+    try:
+        # Stop and disable the systemd service and socket
+        os.system(f"sudo systemctl stop gunicorn_{domain_name}.service")
+        os.system(f"sudo systemctl disable gunicorn_{domain_name}.service")
+        os.system(f"sudo systemctl stop gunicorn_{domain_name}.socket")
+        os.system(f"sudo systemctl disable gunicorn_{domain_name}.socket")
+        
+        # Remove the service and socket files
+        os.system(f"sudo rm /etc/systemd/system/gunicorn_{domain_name}.service")
+        os.system(f"sudo rm /etc/systemd/system/gunicorn_{domain_name}.socket")
+        
+        # Reload the systemd daemon
+        os.system("sudo systemctl daemon-reload")
+        os.system("sudo systemctl reset-failed")
+        
+        # Remove the NGINX configuration
+        os.system(f"sudo rm /etc/nginx/sites-available/{domain_name}")
+        os.system(f"sudo rm /etc/nginx/sites-enabled/{domain_name}")
+        
+        # Test and reload NGINX to apply the changes
+        os.system("sudo nginx -t && sudo systemctl reload nginx")
+        
+        print(f"Service, socket, and NGINX configuration for {domain_name} have been removed successfully.")
+        
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
 
 def main():
     if len(sys.argv) > 1 and sys.argv[1] == "run":
         copy_project_files()
+    elif len(sys.argv) > 1 and sys.argv[1] == "drop":
+        try:
+            global domain_name
+            domain_name = sys.argv[2]
+            remove_service_and_nginx(domain_name)
+        except IndexError:
+            print("Usage: rockstarter drop your-domain-name.com")
     elif len(sys.argv) > 1 and sys.argv[1] == "deploy":
         try:
             global domain_name
