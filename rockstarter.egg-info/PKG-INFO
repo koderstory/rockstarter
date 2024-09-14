@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: rockstarter
-Version: 0.1.4
+Version: 0.1.5
 Summary: A simple tool to create django-ready project
 Home-page: https://github.com/koderstory/django-rockstarter
 Author: Koderstory
@@ -34,7 +34,7 @@ Django Rockstarter is a Python package designed to accelerate the setup of Djang
 1. **Install django rockstarter package**
 
 ```
-pip install git+https://github.com/koderstory/django-rockstarter.git
+pip install rockstarter
 ```
 
 2. **Init project**
