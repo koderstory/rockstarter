@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rockstarter',
-    version='0.1.5',
+    version='0.1.6',
     packages=find_packages(),
     install_requires=[
         'Django>=4.2.15',
@@ -11,7 +11,8 @@ setup(
         'django-environ==0.11.2',
         'sqlparse==0.5.1',
         'whitenoise==6.7.0',
-        'gunicorn==23.0.0'
+        'gunicorn==23.0.0',
+        'psycopg2==2.9.9'
     ],
     include_package_data=True,
     entry_points={
@@ -24,7 +25,7 @@ setup(
     description='A simple tool to create django-ready project',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
-    url='https://github.com/koderstory/django-rockstarter',
+    url='https://github.com/koderstory/rockstarter',
     classifiers=[
         'Programming Language :: Python :: 3',
         'License :: OSI Approved :: MIT License',
