@@ -136,7 +136,7 @@ STATICFILES_DIRS = [
 if env.bool('IS_S3'):
     AWS_ACCESS_KEY_ID = env('ACCESS_KEY')
     AWS_SECRET_ACCESS_KEY = env('SECRET_KEY')
-    AWS_STORAGE_BUCKET_NAME = "hamesha-catalog"
+    AWS_STORAGE_BUCKET_NAME = env('BUCKET_NAME')
     AWSS_S3_SIGNATURE_VERSION = 's3v4'
     AWS_S3_REGION_NAME = 'singapore'
     AWS_S3_FILE_OVERWRITE = False
@@ -157,7 +157,7 @@ STORAGES = {
     },
 }
 
-if env("IS_S3"):
+if env.bool("IS_S3"):
     STORAGES["default"]["BACKEND"] = "storages.backends.s3boto3.S3Boto3Storage"
 
 # Default primary key field type
